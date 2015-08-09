@@ -73,7 +73,7 @@ pose p s
         | position s == p = ExceptionState ( "You are already " ++ show(p) ++ "." ) s
         | otherwise       = s { position = p }
 
-initialState = State { location = inside, position = Sitting }
+initialState = help State { location = inside, position = Sitting }
 
 quit :: State -> State
 quit (ExceptionState _ s) = quit s
@@ -88,7 +88,13 @@ grammer = [  ("stand", pose Standing)
             ,("west",  go west)
             ,("exits", exits)
             ,("quit",  quit)
+            ,("help",  help)
             ]
+
+help :: State -> State
+help (ExceptionState _ s) = help s
+help s                    = ExceptionState ("Commands are: " ++ cs) s
+    where cs = foldl (\a (n,f) -> (a ++ n ++ " ")) "" grammer
 
 exits :: State -> State
 exits (ExceptionState _ s) = exits s
