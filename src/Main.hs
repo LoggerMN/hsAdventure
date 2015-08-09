@@ -26,9 +26,9 @@ showExitsDir d p
 showExits :: Place -> String
 showExits p = "Exits are\n" ++ (showExitsDir "north" p)
 
-inside  = Place { name = "inside",  north = Just outside, south = Nothing,     east = Nothing, west = Nothing }
-outside = Place { name = "outside", north = Nothing,      south = Just inside, east = Nothing, west = Nothing }
-gameOver = Place { name = "Game Over", north = Nothing, south = Nothing, east = Nothing, west = Nothing }
+inside   = Place { name = "inside",    north = Just outside, south = Nothing,     east = Nothing, west = Nothing }
+outside  = Place { name = "outside",   north = Nothing,      south = Just inside, east = Nothing, west = Nothing }
+gameOver = Place { name = "Game Over", north = Nothing,      south = Nothing,     east = Nothing, west = Nothing }
 
 instance Eq Place where
         x == y = (name x) == (name y)
