@@ -4,6 +4,7 @@ module Main where
 import           Control.DeepSeq
 import           Control.Monad
 import           System.IO       (BufferMode (..), hSetBuffering, stdin)
+import qualified Model
 
 data Place = Place { name  :: String
                     ,north :: Maybe Place
@@ -132,4 +133,6 @@ gameRecur s = do
 
 main :: IO ()
 --main = gameRecur initialState
-main = gameLazy
+--main = gameLazy
+main = putStrLn $ Model.showIstate
+
