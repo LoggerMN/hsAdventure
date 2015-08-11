@@ -16,7 +16,7 @@ maybeShowPlace False s (Just p) = s ++ " = " ++ (show $ pid p)
 maybeShowPlace True s (Just p) = ", " ++ ( maybeShowPlace False s (Just p) )
 
 instance Show Exits where
-    show Exits { north=n, south=s, east=e, west=w} = "Exits { " ++ nstr ++ sstr ++ estr ++ wstr ++ " }"
+    show Exits { north=n, south=s, east=e, west=w} = "Exits {" ++ nstr ++ sstr ++ estr ++ wstr ++ "}"
         where nstr = ( maybeShowPlace False "north" n )
               sstr = ( maybeShowPlace ( nstr /= "" ) "south" s )
               estr = ( maybeShowPlace ( nstr /= "" || sstr /= "" ) "east" e )
@@ -30,7 +30,7 @@ instance Eq Place where
         x == y = (pid x) == (pid y)
 
 instance Show Place where
-        show Place { pid=i, exits=es } = "Place { pid = " ++ (show i) ++ ", exits = " ++ (show es) ++ " }"
+        show Place { pid=i, exits=es } = "Place {pid = " ++ (show i) ++ ", exits = " ++ (show es) ++ "}"
 
 
 inside   = Place { pid = Inside,    exits = Exits { north = Just outside, south = Nothing,     east = Nothing, west = Nothing } }
