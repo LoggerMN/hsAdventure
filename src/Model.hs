@@ -1,6 +1,6 @@
 module Model where
 
-data Item = Cup | Stick
+data Item = Cup | Stick deriving (Eq, Show, Enum)
 
 data Exits = Exits { north :: Maybe Place
                     ,south :: Maybe Place
@@ -8,38 +8,39 @@ data Exits = Exits { north :: Maybe Place
                     ,west  :: Maybe Place
                     }
 
+maybeShowPlace :: String -> (Maybe Place) -> String
+maybeShowPlace s Nothing = ""
+maybeShowPlace s (Just p) = s ++ " " ++ (name p) ++ "\n"
+
+instance Show Exits where
+    show Exits { north=n, south=s, east=e, west=w} = ( maybeShowPlace "north" n ) ++ ( maybeShowPlace "south" s ) ++ ( maybeShowPlace "east" e ) ++ ( maybeShowPlace "west" w )
+
 data Place = Place { name  :: String
                     ,exits :: Exits
                    }
-
-inside   = Place { name = "inside",    exits = Exits { north = Just outside, south = Nothing,     east = Nothing, west = Nothing } }
-outside  = Place { name = "outside",   exits = Exits { north = Nothing,      south = Just inside, east = Nothing, west = Nothing } }
 
 instance Eq Place where
         x == y = (name x) == (name y)
 
 instance Show Place where
-        show p = name p
+        show Place { name=n, exits=es } = n ++ "\n" ++ (show es)
 
-data Position = Standing | Sitting deriving (Eq, Read, Enum)
 
-instance Show Position where
-        show Standing  = "standing"
-        show Sitting   = "sitting"
+inside   = Place { name = "inside",    exits = Exits { north = Just outside, south = Nothing,     east = Nothing, west = Nothing } }
+outside  = Place { name = "outside",   exits = Exits { north = Nothing,      south = Just inside, east = Nothing, west = Nothing } }
 
-data Status = Starting | Playing | GameOver
+
+data Pose = Standing | Sitting deriving (Eq, Enum, Show)
+
+data Status = Playing | GameOver deriving (Eq, Show, Enum)
 
 data State = State { status      :: Status
                     ,location    :: Place
-                    ,position    :: Position
+                    ,pose        :: Pose
                     ,inv_items   :: [Item]
                     ,place_items :: [(String,Item)]
+                    ,visited     :: [Place]
                     }
-                    | ExceptionState String State deriving (Eq)
+                    | ExceptionState String State String deriving (Eq)
 
-instance Show State where
-        show ( ExceptionState msg s ) = msg ++ "\n" ++ ( show s )
-        show s
-            | ( location s ) == gameOver  = show( location s )
-            | otherwise                   = "You are " ++ show(position s) ++ " " ++ show( location s ) ++ "\n-> "
 
