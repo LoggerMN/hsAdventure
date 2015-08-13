@@ -1,57 +1,56 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Model where
 
-data PlaceId = Inside | Outside deriving (Eq, Show, Enum)
+data RoomId = Inside | Outside deriving (Eq, Show, Enum)
 
 data Item = Cup | Stick deriving (Eq, Show, Enum)
 
-data Exits = Exits { north :: Maybe Place
-                    ,south :: Maybe Place
-                    ,east  :: Maybe Place
-                    ,west  :: Maybe Place
-                    } -- can this be made Foldable?
+data Exits = Exits { north :: Maybe (Rooms -> Room)
+                    ,south :: Maybe (Rooms -> Room)
+                    ,east  :: Maybe (Rooms -> Room)
+                    ,west  :: Maybe (Rooms -> Room)
+                    } deriving ( Show )
 
-maybeShowPlace :: Bool -> String -> (Maybe Place) -> String
-maybeShowPlace _ _ Nothing = ""
-maybeShowPlace False s (Just p) = s ++ " = " ++ (show $ pid p)
-maybeShowPlace True s (Just p) = ", " ++ ( maybeShowPlace False s (Just p) )
+data Room = Room { pid     :: RoomId
+                  ,visited :: Bool
+                  ,exits   :: Exits
+                  ,items   :: [Item]
+                 } deriving (Show)
 
-instance Show Exits where
-    show Exits { north=n, south=s, east=e, west=w} = "Exits {" ++ nstr ++ sstr ++ estr ++ wstr ++ "}"
-        where nstr = ( maybeShowPlace False "north" n )
-              sstr = ( maybeShowPlace ( nstr /= "" ) "south" s )
-              estr = ( maybeShowPlace ( nstr /= "" || sstr /= "" ) "east" e )
-              wstr = ( maybeShowPlace ( nstr /= "" || sstr /= "" || estr /= "") "west" w )  -- seems like I should somehow be able to do a fold here.
-
-data Place = Place { pid   :: PlaceId
-                    ,exits :: Exits
-                   }
-
-instance Eq Place where
+instance Eq Room where
         x == y = (pid x) == (pid y)
 
-instance Show Place where
-        show Place { pid=i, exits=es } = "Place {pid = " ++ (show i) ++ ", exits = " ++ (show es) ++ "}"
+data Rooms = Rooms { inside  :: Room
+                    ,outside :: Room
+                   } deriving (Eq)
 
-
-inside   = Place { pid = Inside,    exits = Exits { north = Just outside, south = Nothing,     east = Nothing, west = Nothing } }
-outside  = Place { pid = Outside,   exits = Exits { north = Nothing,      south = Just inside, east = Nothing, west = Nothing } }
-
+instance Show Rooms where
+    show rs = "\n         Rooms { inside=" ++ (show $ inside rs) ++ "\n                ,outside=" ++ (show $ outside rs) ++ "\n               }\n       "
 
 data Pose = Standing | Sitting deriving (Eq, Enum, Show)
 
 data Status = Playing | GameOver deriving (Eq, Show, Enum)
 
+instance Show (Rooms -> Room) where
+    show f = show $ pid $ f $ rooms istate
+
 data State = State { status      :: Status
-                    ,location    :: Place
+                    ,location    :: (Rooms -> Room)
                     ,pose        :: Pose
-                    ,inv_items   :: [Item]
-                    ,place_items :: [(PlaceId,[Item])]
-                    ,visited     :: [Place]
+                    ,rooms       :: Rooms
+                    ,inventory   :: [Item]
                     }
-                    | ExceptionState String State String deriving (Eq, Show)
+                    | ExceptionState String State String deriving (Show)
 
-
-istate = State { status=Playing, location=inside, pose=Standing, inv_items=[], place_items=[ (Inside,[Cup]), (Outside,[Stick]) ], visited=[] }
+istate = State { status=Playing
+                ,location=inside
+                ,pose=Standing
+                ,rooms=Rooms{ inside  = Room { pid = Inside,  visited=False, exits = Exits { north = Just outside, south = Nothing,     east = Nothing, west = Nothing }, items=[Cup] } 
+                             ,outside = Room { pid = Outside, visited=False, exits = Exits { north = Nothing,      south = Just inside, east = Nothing, west = Nothing }, items=[Stick] }
+                            }
+                ,inventory=[]
+               }
 
 showIstate = show istate
 
