@@ -1,5 +1,6 @@
 module View where
 import Model
+import Logic
 
 showExit :: String -> (Maybe RoomId) -> String
 showExit _ Nothing = ""
@@ -24,5 +25,40 @@ showShort :: State -> String
 showShort (ExceptionState pre s post) = (show pre) ++ (showShort s) ++ (show post)
 showShort s = "You are " ++ (shortd r) ++ "\n"
     where r = room s
+
+
+
+
+grammer = [  ("stand", setPose Standing)
+            ,("sit",   setPose Sitting)
+            ,("north", go North)
+            ,("south", go South)
+            ,("east",  go East)
+            ,("west",  go West)
+            ,("exits", cmdExits)
+            ,("quit",  quit)
+            ,("help",  help)
+            ]
+
+help :: State -> State
+help (ExceptionState _ s _) = help s
+help s                    = ExceptionState ("Commands are: " ++ cs) s ""
+    where cs = foldl (\a (n,f) -> (a ++ n ++ " ")) "" grammer
+
+cmdExits :: State -> State
+cmdExits (ExceptionState _ s _) = cmdExits s
+cmdExits s                    = ExceptionState ( showExits (room s) ) s ""
+
+noOp :: State -> State
+noOp (ExceptionState _ s _) = noOp s
+noOp s                    = ExceptionState "Do What?" s ""
+
+toOp :: String -> ( State -> State )
+toOp c = case m of
+    Nothing  -> noOp
+    (Just f) -> f
+    where m = lookup c grammer
+
+showIstate = show nstate ++ "\n\n" ++ (showFull nstate) ++ "\n\n" ++ (showShort nstate)
 
 

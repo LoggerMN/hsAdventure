@@ -6,11 +6,19 @@ data RoomId = Inside | Outside deriving (Eq, Show, Enum)
 
 data Item = Cup | Stick deriving (Eq, Show, Enum)
 
+data Direction = North | South | East | West deriving (Eq, Show, Enum)
+
 data Exits = Exits { north :: Maybe RoomId
                     ,south :: Maybe RoomId
                     ,east  :: Maybe RoomId
                     ,west  :: Maybe RoomId
                     } deriving ( Show )
+
+dirFunc :: Direction -> ( Exits -> Maybe RoomId )
+dirFunc North = north
+dirFunc South = south
+dirFunc East  = east
+dirFunc West  = west
 
 data Room = Room { pid     :: RoomId
                   ,descr   :: String
@@ -40,6 +48,7 @@ updateRoom rs Inside n = rs { inside=n }
 updateRoom rs Outside n = rs { outside=n }
 
 room :: State -> Room
+room (ExceptionState _ s _ ) = room s
 room s = roomFunc (location s) $ rooms s
 
 data State = State { status      :: Status
@@ -50,6 +59,13 @@ data State = State { status      :: Status
                     }
                     | ExceptionState String State String deriving (Show)
 
+curExits :: State -> Exits
+curExits (ExceptionState _ s _ ) = curExits s
+curExits s = exits $ room s
+
+curExit :: Direction -> State -> Maybe RoomId
+curExit d (ExceptionState _ s _ ) = curExit d s
+curExit d s = dirFunc d $ curExits s
 
 iInsideRm  = Room { pid = Inside
                    ,descr="in a small dark room. No windows and only a single door."
