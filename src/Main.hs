@@ -1,8 +1,6 @@
 -- | Main entry point to the application.
 module Main where
 
-import           Control.DeepSeq
-import           Control.Monad
 import           System.IO       (BufferMode (..), hSetBuffering, stdin)
 import qualified Model
 import qualified Logic
