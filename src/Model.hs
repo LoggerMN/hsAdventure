@@ -47,10 +47,6 @@ updateRoom :: Rooms -> RoomId -> Room -> Rooms
 updateRoom rs Inside n = rs { inside=n }
 updateRoom rs Outside n = rs { outside=n }
 
-room :: State -> Room
-room (ExceptionState _ s _ ) = room s
-room s = roomFunc (location s) $ rooms s
-
 data State = State { status      :: Status
                     ,location    :: RoomId
                     ,pose        :: Pose
@@ -58,6 +54,19 @@ data State = State { status      :: Status
                     ,inventory   :: [Item]
                     }
                     | ExceptionState String State String deriving (Show)
+
+room :: State -> Room
+room (ExceptionState _ s _ ) = room s
+room s = roomFunc (location s) $ rooms s
+
+updateCurRoom :: State -> Room -> State
+updateCurRoom (ExceptionState _ s _ ) r = updateCurRoom s r
+updateCurRoom s r = s { rooms=updateRoom (rooms s) (location s) r }
+
+setCurRoomVisited :: State -> State
+setCurRoomVisited (ExceptionState _ s _ ) = setCurRoomVisited s
+setCurRoomVisited s = updateCurRoom s nr
+    where nr = (room s) { visited=True }
 
 curExits :: State -> Exits
 curExits (ExceptionState _ s _ ) = curExits s
@@ -78,7 +87,7 @@ iInsideRm  = Room { pid = Inside
                    ,items=[Cup] }
 
 iOutsideRm = Room { pid = Outside
-                   ,descr="in the cold barren tundra in all directions, with a small nearby shack the only sign of civilization."
+                   ,descr="in the cold barren tundra. A small nearby shack to the south the only sign of civilization."
                    ,shortd="outside."
                    ,visited=False
                    ,exits = Exits { north = Nothing

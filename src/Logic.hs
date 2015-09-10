@@ -1,15 +1,9 @@
 module Logic where
 import Model
 
-l = location istate
-f = roomFunc l
-rs = rooms istate
-nrm = (f rs) { visited=True }
-nstate = istate { rooms=updateRoom rs l nrm }
-
-flushErrors :: State -> State
-flushErrors (ExceptionState _ s _) = flushErrors s
-flushErrors s = s
+flushExceptions :: State -> State
+flushExceptions (ExceptionState _ s _) = flushExceptions s
+flushExceptions s = s
 
 nextLocation :: Maybe RoomId -> State -> State
 nextLocation m (ExceptionState _ s _ ) = nextLocation m s
@@ -28,6 +22,9 @@ setPose p s
 
 quit :: State -> State
 quit (ExceptionState _ s _) = quit s
-quit s = ExceptionState "Quitters never prosper" ( s { status = GameOver } ) ""
+quit s = ExceptionState "" ( s { status = GameOver } ) "Quitters never prosper"
 
+noOp :: State -> State
+noOp (ExceptionState _ s _) = noOp s
+noOp s                    = ExceptionState "You can't do that." s ""
 

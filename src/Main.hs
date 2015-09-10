@@ -8,28 +8,19 @@ import qualified Model
 import qualified Logic
 import qualified View
 
---gameLazy :: IO()
---gameLazy = do
---        sin <- getContents
---        let cmds = lines sin
---        let fs = map toOp cmds
---        let inf_states = scanl (\s f -> f s) initialState fs
---        let states = takeWhile (\st -> location ( flushErrors st ) /= gameOver) inf_states
---        mapM_ (\s -> putStrLn $ show s) states
---        putStrLn $ show $ inf_states !! ( length states )
-
 gameRecur :: Model.State -> IO()
 gameRecur s = do
-        putStrLn (show s)
-        if (Model.status (Logic.flushErrors s)) == Model.GameOver then
+        if ( Model.visited $ Model.room s ) then putStrLn (View.showShort s) else putStrLn (View.showFull s)
+--        putStrLn $ show s
+        let s' = Model.setCurRoomVisited s
+--        putStrLn $ show s'
+        if (Model.status s') == Model.GameOver then
                 return ()
         else
                 do
                         cmd <- getLine
-                        gameRecur ( (View.toOp cmd) s )
+                        gameRecur ( (View.toOp cmd) s' )
 
 main :: IO ()
---main = gameRecur initialState
---main = gameLazy
-main = putStrLn $ View.showIstate
+main = gameRecur Model.istate
 
