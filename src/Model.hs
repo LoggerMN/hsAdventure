@@ -1,5 +1,3 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Model where
 
 data RoomId = Inside | Outside deriving (Eq, Show, Enum)
@@ -68,6 +66,12 @@ setCurRoomVisited (ExceptionState _ s _ ) = setCurRoomVisited s
 setCurRoomVisited s = updateCurRoom s nr
     where nr = (room s) { visited=True }
 
+clearCurRoomVisited :: State -> State
+clearCurRoomVisited (ExceptionState _ s _ ) = clearCurRoomVisited s
+clearCurRoomVisited s = updateCurRoom s nr
+    where nr = (room s) { visited=False }
+
+
 curExits :: State -> Exits
 curExits (ExceptionState _ s _ ) = curExits s
 curExits s = exits $ room s
@@ -75,6 +79,10 @@ curExits s = exits $ room s
 curExit :: Direction -> State -> Maybe RoomId
 curExit d (ExceptionState _ s _ ) = curExit d s
 curExit d s = dirFunc d $ curExits s
+
+curItems :: State -> [Item]
+curItems (ExceptionState _ s _ ) = curItems s
+curItems s = items $ room s
 
 iInsideRm  = Room { pid = Inside
                    ,descr="in a small dark room. No windows and only a single door."

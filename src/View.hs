@@ -26,6 +26,10 @@ showShort (ExceptionState pre s post) = pre ++ "\n\n" ++ (showShort s) ++ "\n\n"
 showShort s = "You are " ++ (shortd r) ++ "\n"
     where r = room s
 
+showItems :: State -> State
+showItems (ExceptionState _ s _ ) = showItems s
+showItems s = ExceptionState "" ( clearCurRoomVisited s ) $ "Looking around you see " ++ (foldl (\a i -> (a ++ "a " ++ (show i) ++ " ")) "" $ curItems s)
+    
 help :: State -> State
 help (ExceptionState _ s _) = help s
 help s                    = ExceptionState ("Commands are: " ++ cs) s ""
@@ -42,6 +46,7 @@ grammer = [  ("stand", setPose Standing)
             ,("east",  go East)
             ,("west",  go West)
             ,("exits", cmdExits)
+            ,("look",  showItems)
             ,("quit",  quit)
             ,("help",  help)
             ]
