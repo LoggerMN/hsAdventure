@@ -2,6 +2,8 @@ module View where
 import Model
 import Logic
 
+data ViewState = ViewState (Maybe String) State (Maybe String) deriving (Show)
+
 showExit :: String -> (Maybe RoomId) -> String
 showExit _ Nothing = ""
 showExit dname (Just e) = dname
