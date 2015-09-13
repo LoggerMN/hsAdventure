@@ -5,6 +5,24 @@ module Main where
 import qualified Model
 import qualified View
 
+data TState r = TState { status   :: String
+                        ,resource :: r
+                       } deriving (Show)
+
+data R t = R { name  :: String
+              ,value :: t
+              } deriving (Show)
+
+inside r = TState { status = "inside"
+                   ,resource = r
+                  }
+
 main :: IO ()
-main = View.gameRecur (View.ViewState "Welcome to Adventure!" Model.istate "Type 'help' for commands.") 
+main = View.gameRecur (View.ViewState "Welcome to Adventure!" Model.istate "Type 'help' for commands.")
+--main = do
+--    putStrLn $ show $ inside "string"
+--    putStrLn $ show $ inside 31
+
+
+
 

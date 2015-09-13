@@ -36,47 +36,22 @@ showShortState (ViewState pre s post) = (showPreSuffix pre) ++ "You are " ++ (sh
 showState :: ViewState -> String
 showState v@(ViewState _ s _) = if ( visited $ room s ) then (showShortState v) else (showFullState v)
 
-
 showItems :: State -> String
 showItems s = "Looking around you see " ++ (foldl (\a i -> (a ++ "a " ++ (show i) ++ " ")) "" $ curItems s)
 
-showHelp :: String
-showHelp = "Commands are: " ++ cs
-    where cs = foldl (\a (n,f) -> (a ++ n ++ " ")) "" grammer
-
-
-cmdHelp :: ViewState -> ViewState
-cmdHelp (ViewState _ s _) = ViewState "" s showHelp
-
-cmdExits :: ViewState -> ViewState
-cmdExits (ViewState _ s _) = ViewState "" s (showExits s)
-
-cmdLook :: ViewState -> ViewState
-cmdLook (ViewState _ s _) = ViewState "" s (showItems s)
-
-cmdQuit :: ViewState -> ViewState
-cmdQuit (ViewState _ s _) = ViewState "" (quit s) "Quitters never prosper" 
-
-cmdGo :: Direction -> ViewState -> ViewState
-cmdGo d (ViewState _ s _) = ViewState "" (go d s) ""
-
-grammer :: [ (String, (ViewState -> ViewState) ) ]
-grammer = [  ("north", cmdGo North)
-            ,("south", cmdGo South)
-            ,("east",  cmdGo East)
-            ,("west",  cmdGo West)
-            ,("exits", cmdExits)
-            ,("look",  cmdLook)
-            ,("quit",  cmdQuit)
-            ,("help",  cmdHelp)
-            ]
-
+showHelp :: ViewState -> String
+showHelp s = "Commands are: north, south, east, west, exits, look, quit, help"
 
 doCmd :: String -> ViewState -> ViewState
-doCmd c v@(ViewState _ s _) = case m of
-    Nothing  -> ViewState ("I don't know how to " ++ c ++ ".") s ""
-    (Just f) -> f v
-    where m = lookup c grammer
+doCmd "north" v@(ViewState _ s _) = ViewState "" (go North s) "" 
+doCmd "south" v@(ViewState _ s _) = ViewState "" (go South s) ""
+doCmd "east"  v@(ViewState _ s _) = ViewState "" (go East s) ""
+doCmd "west"  v@(ViewState _ s _) = ViewState "" (go West s) ""
+doCmd "exits" v@(ViewState _ s _) = ViewState "" s (showExits s)
+doCmd "look"  v@(ViewState _ s _) = ViewState "" s (showItems s)
+doCmd "quit"  v@(ViewState _ s _) = ViewState "" (quit s) "Quitters never prosper" 
+doCmd "help"  v@(ViewState _ s _) = ViewState "" s (showHelp v)
+doCmd c       v@(ViewState _ s _) = ViewState ("I don't know how to " ++ c ++ ".") s ""
 
 gameRecur :: ViewState -> IO()
 gameRecur v@(ViewState _ s _) = do

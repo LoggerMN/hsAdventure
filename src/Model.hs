@@ -93,11 +93,13 @@ iOutsideRm = Room { pid = Outside
                                    ,west = Nothing }
                    ,items=[Stick] }
 
+iRooms = Rooms{ inside  = iInsideRm
+               ,outside = iOutsideRm
+              }
+
 istate = State { status=Playing
                 ,location=Inside
-                ,rooms=Rooms{ inside  = iInsideRm
-                             ,outside = iOutsideRm
-                            }
+                ,rooms=iRooms
                 ,inventory=[]
                }
 
