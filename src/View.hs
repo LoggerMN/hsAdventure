@@ -43,15 +43,15 @@ showHelp :: ViewState -> String
 showHelp s = "Commands are: north, south, east, west, exits, look, quit, help"
 
 doCmd :: String -> ViewState -> ViewState
-doCmd "north" v@(ViewState _ s _) = ViewState "" (go North s) "" 
-doCmd "south" v@(ViewState _ s _) = ViewState "" (go South s) ""
-doCmd "east"  v@(ViewState _ s _) = ViewState "" (go East s) ""
-doCmd "west"  v@(ViewState _ s _) = ViewState "" (go West s) ""
-doCmd "exits" v@(ViewState _ s _) = ViewState "" s (showExits s)
-doCmd "look"  v@(ViewState _ s _) = ViewState "" s (showItems s)
-doCmd "quit"  v@(ViewState _ s _) = ViewState "" (quit s) "Quitters never prosper" 
-doCmd "help"  v@(ViewState _ s _) = ViewState "" s (showHelp v)
-doCmd c       v@(ViewState _ s _) = ViewState ("I don't know how to " ++ c ++ ".") s ""
+doCmd c v@(ViewState _ s _) = case c of "north" -> ViewState "" (go North s) ""
+                                        "south" -> ViewState "" (go North s) ""
+                                        "east"  -> ViewState "" (go East s) ""
+                                        "west"  -> ViewState "" (go West s) ""
+                                        "exits" -> ViewState "" s (showExits s)
+                                        "look"  -> ViewState "" s (showItems s)
+                                        "quit"  -> ViewState "" (quit s) "Quitters never prosper"
+                                        "help"  -> ViewState "" s (showHelp v)
+                                        c       -> ViewState ("I don't know how to " ++ c ++ ".") s ""
 
 gameRecur :: ViewState -> IO()
 gameRecur v@(ViewState _ s _) = do
