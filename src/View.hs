@@ -2,7 +2,11 @@ module View where
 import Model
 import Logic
 
-data ViewState = ViewState String State String deriving (Show)
+data ViewResource = ViewResource { descr  :: String
+                                  ,shortd :: String
+                                 } deriving (Show)
+
+data ViewState = ViewState String (State ViewResource) String deriving (Show)
 
 showRoomExit :: String -> (Maybe RoomId) -> String
 showRoomExit _ Nothing = ""
@@ -15,10 +19,10 @@ showRoomExitsDir d e
         | d == "east"  = showRoomExit d (east e) ++ (showRoomExitsDir "west" e)
         | d == "west"  = showRoomExit d (west e)
 
-showRoomExits :: Room -> String
+showRoomExits :: Room r -> String
 showRoomExits r = "Exits are " ++ (showRoomExitsDir "north" ( exits r ) ) ++ "\n"
 
-showExits :: State -> String
+showExits :: State r -> String
 showExits s = showRoomExits $ room s
 
 showPreSuffix s
@@ -26,23 +30,23 @@ showPreSuffix s
     | otherwise = s ++ "\n"
 
 showFullState :: ViewState -> String
-showFullState (ViewState pre s post) = (showPreSuffix pre) ++ "You are " ++ (descr r) ++ "\n" ++ (showPreSuffix post)
+showFullState (ViewState pre s post) = (showPreSuffix pre) ++ "You are " ++ (descr $ resource r) ++ "\n" ++ (showPreSuffix post)
     where r = room s
 
 showShortState :: ViewState -> String
-showShortState (ViewState pre s post) = (showPreSuffix pre) ++ "You are " ++ (shortd r) ++ "\n" ++ (showPreSuffix post)
+showShortState (ViewState pre s post) = (showPreSuffix pre) ++ "You are " ++ (shortd $ resource r) ++ "\n" ++ (showPreSuffix post)
     where r = room s
 
 showState :: ViewState -> String
 showState v@(ViewState _ s _) = if ( visited $ room s ) then (showShortState v) else (showFullState v)
 
-showItems :: State -> String
+showItems :: State r -> String
 showItems s = "Looking around you see " ++ (foldl (\a i -> (a ++ "a " ++ (show i) ++ " ")) "" $ curItems s)
 
 showHelp :: ViewState -> String
 showHelp s = "Commands are: north, south, east, west, exits, look, quit, help"
 
-doGo :: Direction -> State -> ViewState
+doGo :: Direction -> State ViewResource -> ViewState
 doGo d s = ViewState pre (go d s) ""
     where pre = if ( curDirExit d s ) == Nothing then "You can't go that way." else ""
 
@@ -68,4 +72,14 @@ gameRecur v@(ViewState _ s _) = do
                         cmd <- getLine
                         gameRecur ( (doCmd cmd) v' )
 
+
+vResources = [ ViewResource { descr  = "in a small dark room. No windows and only a single door."
+                             ,shortd = "in the small dark room."
+                            }
+              ,ViewResource { descr  ="in the cold barren tundra. A small nearby shack to the south the only sign of civilization."
+                             ,shortd ="outside."
+                            }
+             ]
+
+vRooms = iRooms vResources
 

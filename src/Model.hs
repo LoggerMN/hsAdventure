@@ -18,88 +18,85 @@ dirFunc South = south
 dirFunc East  = east
 dirFunc West  = west
 
-data Room = Room { pid     :: RoomId
-                  ,descr   :: String
-                  ,shortd  :: String
-                  ,visited :: Bool
-                  ,exits   :: Exits
-                  ,items   :: [Item]
-                 } deriving (Show)
+data Room r = Room { pid      :: RoomId
+                    ,resource :: r
+                    ,visited  :: Bool
+                    ,exits    :: Exits
+                    ,items    :: [Item]
+                   } deriving (Show)
 
-instance Eq Room where
+instance Eq (Room r) where
         x == y = (pid x) == (pid y)
 
-data Rooms = Rooms { inside  :: Room
-                    ,outside :: Room
-                   } deriving (Eq, Show)
+data Rooms r = Rooms { inside  :: Room r
+                      ,outside :: Room r
+                     } deriving (Eq, Show)
 
 data Status = Playing | GameOver deriving (Eq, Show, Enum)
 
-roomFunc :: RoomId -> (Rooms -> Room)
+roomFunc :: RoomId -> (Rooms r -> Room r)
 roomFunc Inside = inside
 roomFunc Outside = outside
 
-updateRoom :: Rooms -> RoomId -> Room -> Rooms
+updateRoom :: Rooms r -> RoomId -> Room r -> Rooms r
 updateRoom rs Inside n = rs { inside=n }
 updateRoom rs Outside n = rs { outside=n }
 
-data State = State { status      :: Status
-                    ,location    :: RoomId
-                    ,rooms       :: Rooms
-                    ,inventory   :: [Item]
-                    } deriving (Show)
+data State r = State { status      :: Status
+                      ,location    :: RoomId
+                      ,rooms       :: Rooms r
+                      ,inventory   :: [Item]
+                     } deriving (Show)
 
-room :: State -> Room
+room :: State r -> Room r
 room s = roomFunc (location s) $ rooms s
 
-updateCurRoom :: State -> Room -> State
+updateCurRoom :: State r -> Room r -> State r
 updateCurRoom s r = s { rooms=updateRoom (rooms s) (location s) r }
 
-setCurRoomVisited :: State -> State
+setCurRoomVisited :: State r -> State r
 setCurRoomVisited s = updateCurRoom s nr
     where nr = (room s) { visited=True }
 
-clearCurRoomVisited :: State -> State
+clearCurRoomVisited :: State r -> State r
 clearCurRoomVisited s = updateCurRoom s nr
     where nr = (room s) { visited=False }
 
 
-curExits :: State -> Exits
+curExits :: State r -> Exits
 curExits s = exits $ room s
 
-curDirExit :: Direction -> State -> Maybe RoomId
+curDirExit :: Direction -> State r -> Maybe RoomId
 curDirExit d s = dirFunc d $ curExits s
 
-curItems :: State -> [Item]
+curItems :: State r -> [Item]
 curItems s = items $ room s
 
-iInsideRm  = Room { pid = Inside
-                   ,descr="in a small dark room. No windows and only a single door."
-                   ,shortd="in the small dark room."
-                   ,visited=False
-                   ,exits = Exits { north = Just Outside
-                                   ,south = Nothing
-                                   ,east = Nothing
-                                   ,west = Nothing }
-                   ,items=[Cup] }
+iInsideRm r = Room { pid = Inside
+                    ,resource = r
+                    ,visited=False
+                    ,exits = Exits { north = Just Outside
+                                    ,south = Nothing
+                                    ,east = Nothing
+                                    ,west = Nothing }
+                    ,items=[Cup] }
 
-iOutsideRm = Room { pid = Outside
-                   ,descr="in the cold barren tundra. A small nearby shack to the south the only sign of civilization."
-                   ,shortd="outside."
-                   ,visited=False
-                   ,exits = Exits { north = Nothing
-                                   ,south = Just Inside
-                                   ,east = Nothing
-                                   ,west = Nothing }
-                   ,items=[Stick] }
+iOutsideRm r = Room { pid = Outside
+                     ,resource = r
+                     ,visited=False
+                     ,exits = Exits { north = Nothing
+                                     ,south = Just Inside
+                                     ,east = Nothing
+                                     ,west = Nothing }
+                     ,items=[Stick] }
 
-iRooms = Rooms{ inside  = iInsideRm
-               ,outside = iOutsideRm
-              }
+iRooms rs = Rooms{ inside  = iInsideRm $ rs !! 0
+                  ,outside = iOutsideRm $ rs !! 1
+                 }
 
-istate = State { status=Playing
-                ,location=Inside
-                ,rooms=iRooms
-                ,inventory=[]
-               }
+istate rs = State { status=Playing
+                   ,location=Inside
+                   ,rooms=rs
+                   ,inventory=[]
+                  }
 

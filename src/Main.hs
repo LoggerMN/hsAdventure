@@ -18,7 +18,7 @@ inside r = TState { status = "inside"
                   }
 
 main :: IO ()
-main = View.gameRecur (View.ViewState "Welcome to Adventure!" Model.istate "Type 'help' for commands.")
+main = View.gameRecur (View.ViewState "Welcome to Adventure!" (Model.istate View.vRooms) "Type 'help' for commands.")
 --main = do
 --    putStrLn $ show $ inside "string"
 --    putStrLn $ show $ inside 31
