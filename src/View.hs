@@ -42,11 +42,15 @@ showItems s = "Looking around you see " ++ (foldl (\a i -> (a ++ "a " ++ (show i
 showHelp :: ViewState -> String
 showHelp s = "Commands are: north, south, east, west, exits, look, quit, help"
 
+doGo :: Direction -> State -> ViewState
+doGo d s = ViewState pre (go d s) ""
+    where pre = if ( curDirExit d s ) == Nothing then "You can't go that way." else ""
+
 doCmd :: String -> ViewState -> ViewState
-doCmd c v@(ViewState _ s _) = case c of "north" -> ViewState "" (go North s) ""
-                                        "south" -> ViewState "" (go North s) ""
-                                        "east"  -> ViewState "" (go East s) ""
-                                        "west"  -> ViewState "" (go West s) ""
+doCmd c v@(ViewState _ s _) = case c of "north" -> doGo North s
+                                        "south" -> doGo South s
+                                        "east"  -> doGo East s
+                                        "west"  -> doGo West s
                                         "exits" -> ViewState "" s (showExits s)
                                         "look"  -> ViewState "" s (showItems s)
                                         "quit"  -> ViewState "" (quit s) "Quitters never prosper"
@@ -56,9 +60,7 @@ doCmd c v@(ViewState _ s _) = case c of "north" -> ViewState "" (go North s) ""
 gameRecur :: ViewState -> IO()
 gameRecur v@(ViewState _ s _) = do
         putStrLn $ showState v
---        putStrLn $ show s
         let v'@(ViewState _ s' _) = ViewState "" (Model.setCurRoomVisited s) ""
---        putStrLn $ show s'
         if (Model.status s') == Model.GameOver then
                 return ()
         else
