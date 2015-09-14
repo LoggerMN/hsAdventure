@@ -100,3 +100,5 @@ istate rs = State { status=Playing
                    ,inventory=[]
                   }
 
+tRooms = iRooms [(),()]
+tState = istate tRooms
