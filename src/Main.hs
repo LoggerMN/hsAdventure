@@ -5,7 +5,7 @@ module Main where
 import qualified Model
 import qualified View
 
-main :: IO ()
+--main :: IO ()
 main = View.gameRecur (View.ViewState "Welcome to Adventure!" (Model.istate View.vRooms) "Type 'help' for commands.")
 --main = do
 --    putStrLn $ show $ Model.tState

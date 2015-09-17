@@ -12,7 +12,7 @@ data Exits = Exits { north :: Maybe RoomId
                     ,west  :: Maybe RoomId
                     } deriving ( Show )
 
-dirFunc :: Direction -> ( Exits -> Maybe RoomId )
+--dirFunc :: Direction -> ( Exits -> Maybe RoomId )
 dirFunc North = north
 dirFunc South = south
 dirFunc East  = east
@@ -34,11 +34,11 @@ data Rooms r = Rooms { inside  :: Room r
 
 data Status = Playing | GameOver deriving (Eq, Show, Enum)
 
-roomFunc :: RoomId -> (Rooms r -> Room r)
+--roomFunc :: RoomId -> (Rooms r -> Room r)
 roomFunc Inside = inside
 roomFunc Outside = outside
 
-updateRoom :: Rooms r -> RoomId -> Room r -> Rooms r
+--updateRoom :: Rooms r -> RoomId -> Room r -> Rooms r
 updateRoom rs Inside n = rs { inside=n }
 updateRoom rs Outside n = rs { outside=n }
 
@@ -48,28 +48,28 @@ data State r = State { status      :: Status
                       ,inventory   :: [Item]
                      } deriving (Show)
 
-room :: State r -> Room r
+--room :: State r -> Room r
 room s = roomFunc (location s) $ rooms s
 
-updateCurRoom :: State r -> Room r -> State r
+--updateCurRoom :: State r -> Room r -> State r
 updateCurRoom s r = s { rooms=updateRoom (rooms s) (location s) r }
 
-setCurRoomVisited :: State r -> State r
+--setCurRoomVisited :: State r -> State r
 setCurRoomVisited s = updateCurRoom s nr
     where nr = (room s) { visited=True }
 
-clearCurRoomVisited :: State r -> State r
+--clearCurRoomVisited :: State r -> State r
 clearCurRoomVisited s = updateCurRoom s nr
     where nr = (room s) { visited=False }
 
 
-curExits :: State r -> Exits
+--curExits :: State r -> Exits
 curExits s = exits $ room s
 
-curDirExit :: Direction -> State r -> Maybe RoomId
+--curDirExit :: Direction -> State r -> Maybe RoomId
 curDirExit d s = dirFunc d $ curExits s
 
-curItems :: State r -> [Item]
+--curItems :: State r -> [Item]
 curItems s = items $ room s
 
 iInsideRm r = Room { pid = Inside
