@@ -38,9 +38,9 @@ data Status = Playing | GameOver deriving (Eq, Show, Enum)
 roomFunc Inside = inside
 roomFunc Outside = outside
 
---updateRoom :: Rooms r -> RoomId -> Room r -> Rooms r
-updateRoom rs Inside n = rs { inside=n }
-updateRoom rs Outside n = rs { outside=n }
+--updateRooms :: Rooms r -> RoomId -> Room r -> Rooms r
+updateRooms rs Inside n = rs { inside=n }
+updateRooms rs Outside n = rs { outside=n }
 
 data State r = State { status      :: Status
                       ,location    :: RoomId
@@ -52,7 +52,7 @@ data State r = State { status      :: Status
 room s = roomFunc (location s) $ rooms s
 
 --updateCurRoom :: State r -> Room r -> State r
-updateCurRoom s r = s { rooms=updateRoom (rooms s) (location s) r }
+updateCurRoom s r = s { rooms=updateRooms (rooms s) (location s) r }
 
 --setCurRoomVisited :: State r -> State r
 setCurRoomVisited s = updateCurRoom s nr
